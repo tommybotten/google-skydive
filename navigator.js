@@ -227,7 +227,11 @@
             icon: "img/airplane.png"
         });
         
-        Map.userMarker = new google.maps.Marker({visible: false});
+        Map.userMarker = new google.maps.Marker({
+            position: Map.planeMarker.getPosition(),
+            visible: false
+        });
+        
         google.maps.event.addListener(Map.planeMarker, 'dblclick', function(event) {
             Map.userMarker.setPosition(Map.planeMarker.getPosition());
             Map.userMarker.setMap(Map.googleMap);
