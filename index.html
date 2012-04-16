@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fi" lang="fi">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title></title>
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="http://jqueryrotate.googlecode.com/svn/trunk/jQueryRotate.js"></script>
+  <script type="text/javascript" src="navigator.js"></script>  
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+
+<div id="map_wrapper">
+  <div id="map_canvas" style="width:100%;height:100%;" ></div>
+</div>
+
+<img id="parachute" src="img/parachute.png">
+<img id="windArrow" src="img/windArrow.png">
+<img id="altimeter" src="img/altimeter.png">
+<img id="altimeterArrow" src="img/altimeterArrow.png">
+
+<div id="help">
+  Ohje: Siirrä lentokonetta, tuplaklikkaa lentokonetta hypätäksesi. Ohjaa nuolinäppäimillä &larr; ja &rarr; :D Ei toimi IE:llä! <br/>
+  Alla olevia parametreja voi muuttaa. Ne päivittyvät välittömästi käyttöön enterin painalluksen jälkeen.
+</div>
+
+<div id="statistics">
+  <table>
+    <tr>
+      <td>Altitude:</td>
+      <td><span id="CurrentAltitude"></span></td>
+    </tr>
+    <tr>
+      <td>Land speed:</td>
+      <td><span id="LandSpeed"></span></td>
+    </tr>
+    <tr>
+      <td>T-distance:</td>
+      <td><span id="TargetDistance"></span></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td><span id="CurrentHeading"></span></td>
+    </tr>
+  </table>
+</div>
+
+<div id="variables">
+  <fieldset>
+    <legend>Wind</legend>
+    <table>
+      <tr>
+        <td>Direction</td>
+        <td><input type="text" id="StaticWindDirection" value="180" /></td>
+      </tr>
+      <tr>
+        <td>Speed</td>
+        <td><input type="text" id="StaticWindSpeed" value="5" /></td>
+      </tr>
+    </table>
+  </fieldset>
+    
+  <fieldset>
+    <legend>Parachute</legend>
+    <table>
+      <tr>
+        <td>Speed</td>
+        <td><input type="text" id="StaticParachuteSpeed" value="8" /></td>
+      </tr>
+      <tr>
+        <td>Turn</td>
+        <td><input type="text" id="StaticParachuteTurnSpeed" value="150" /></td>
+      </tr>
+    </table>
+  </fieldset>
+  
+  <fieldset>
+    <legend>Altitude</legend>
+    <table>
+      <tr>
+        <td>Altitude</td>
+        <td><input type="text" id="InitialAltitude" value="1000" /></td>
+      </tr>
+      <tr>
+        <td>Drop</td>
+        <td><input type="text" id="StaticDropSpeed" value="3" /></td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <fieldset>
+    <legend>Map</legend>
+    <table>
+      <tr>
+        <td>Auto-center</td>
+        <td><input type="checkbox" id="MapAutoCenter" value="1000" /></td>
+      </tr>
+    </table>
+  </fieldset>
+</div>
+
+</body>
+</html>
