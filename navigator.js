@@ -126,6 +126,19 @@
             Parachute.altitude = 0;
             clearInterval(IntervalID);
             IntervalID = false;
+            
+            var landingCircle = {
+              strokeColor: "#00FF00",
+              strokeOpacity: 1,
+              strokeWeight: 1,
+              fillColor: "#0000FF",
+              fillOpacity: 0.5,
+              map: Map.googleMap,
+              center: latlng,
+              radius: 30
+            };
+            cityCircle = new google.maps.Circle(landingCircle);
+
         } else if (Parachute.altitude < 300) { 
             $("#CurrentAltitude").css('color', '#FFAAAA');
         } else if (Parachute.altitude < 600) {
