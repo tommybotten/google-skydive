@@ -93,11 +93,11 @@
     }
     
     var Config = {
+        initialAltitude: 1000,
+        parachuteTurnSpeed: 150,
         init: function() {
             this.parachuteSpeed = parseFloat($("#StaticParachuteSpeed").val());
-            this.parachuteTurnSpeed = parseFloat($("#StaticParachuteTurnSpeed").val());
             this.dropSpeed = parseFloat($("#StaticDropSpeed").val());
-            this.initialAltitude = parseFloat($("#InitialAltitude").val());
             this.mapAutoCenter = $("#MapAutoCenter").is(':checked'); 
             this.windDirection = parseFloat($("#StaticWindDirection").val()) - 180;
             this.windSpeed = parseFloat($("#StaticWindSpeed").val());
