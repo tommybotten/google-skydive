@@ -144,6 +144,8 @@
                 min: -1, max: 50, step: 1, value: 3, range: 'min',
                 slide: function(){ $("#DropSpeed").val($(this).slider("value")).change(); }
             });
+            
+            $(".slider .ui-slider-handle").unbind('keydown');
         },
         init: function() {
             this.windDirection = parseInt($("#WindDirection").val()) - 180;
