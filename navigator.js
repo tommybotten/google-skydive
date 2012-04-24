@@ -29,40 +29,36 @@
             Parachute.jump();
         });
 
-        Map.init();
+        Map.init(function() {
+            Config.createControls();
+            Config.init();
+            Parachute.init(Config.initialAltitude, Config.windDirection);
+        });
     });
 
     var Map = {
-        init: function() {
+        init: function(callback) {
             var mapOptions = {
                 zoom: 14,
                 center: new google.maps.LatLng(61.77471, 22.71724),
                 mapTypeId: google.maps.MapTypeId.SATELLITE,
                 disableDefaultUI: true,
-                scrollwheel: true,
                 navigationControl: true,
                 navigationControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
                 mapTypeControl: true,
                 scaleControl: true,
                 scaleControlOptions: { position: google.maps.ControlPosition.BOTTOM_CENTER },
-                draggable: true,
                 disableDoubleClickZoom: true
             };
             this.googleMap = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-
-            this.overlay = new google.maps.OverlayView({map: this.googleMap});
-            this.overlay.draw = function() {};
-            this.overlay.setMap(this.googleMap);
 
             this.targetMarker = new MarkerWithLabel({
                 position: new google.maps.LatLng(61.77371, 22.71724),
                 map: this.googleMap,
                 draggable: true,
                 icon: "http://www.google.com/mapfiles/arrow.png",
-                labelContent: "",
                 labelAnchor: new google.maps.Point(22, 0),
                 labelClass: "TargetDistanceLabel", 
-                labelStyle: {opacity: 1.00}
             });
 
             this.planeMarker = new google.maps.Marker({
@@ -72,29 +68,21 @@
                 icon: "img/airplane.png"
             });
 
-            this.parachuteImg = document.createElement("img");
-            this.parachuteImg.src = "img/parachute.png";
-            this.parachuteImg.setAttribute("id", "parachute");
-            
             this.parachuteMarker = new MarkerWithLabel({
                 position: this.planeMarker.getPosition(),
+                map: this.googleMap,
+                visible: false,
                 icon: "img/blank.png",
-                labelContent: this.parachuteImg,
+                labelContent: '<img id="parachute" src="img/parachute.png"/>',
                 labelAnchor: new google.maps.Point(13, 14),
-                labelClass: "", 
-                labelStyle: {opacity: 1.00}
+                zIndex: 1000000
             });
-            this.parachuteMarker.setZIndex(1000000);
 
             var that = this; // hack scoping
             google.maps.event.addListener(this.planeMarker, 'dragend', function(event) {
-                var targetPos = that.targetMarker.getPosition();
-                var planePos = that.planeMarker.getPosition();
-                var bearing = CalcBearingBetween(targetPos, planePos);
-                $("#WindDirection").val(Math.round(bearing)).change();
-                
                 that.parachuteMarker.setPosition(that.planeMarker.getPosition());
-                
+                var bearing = CalcBearingBetween(that.targetMarker.getPosition(), that.planeMarker.getPosition());
+                $("#WindDirection").val(Math.round(bearing)).change();
                 UpdateTargetDistance();
             });  
             
@@ -104,9 +92,7 @@
             
             google.maps.event.addListenerOnce(this.googleMap, 'idle', function(){
                 UpdateTargetDistance();
-                Config.createControls();
-                Config.init();
-                Parachute.init(Config.initialAltitude, Config.windDirection);
+                callback();
             });
         },
         changeZoomLevel: function(delta) {
@@ -167,10 +153,11 @@
     var Parachute = {
         init: function(altitude, heading) {
             this.setAltitude(altitude);
-            this.setHeading(heading);  
+            this.setHeading(heading);
         },
         jump: function() {
-            Map.parachuteMarker.setMap(Map.googleMap);
+            this.init(Config.initialAltitude, Config.windDirection, Map.parachuteMarker);
+            Map.parachuteMarker.setVisible(true);
             Engine.start();
         },
         hasLanded: function() {
@@ -202,6 +189,11 @@
             var oldPos = Map.parachuteMarker.getPosition();
             Map.parachuteMarker.setPosition(new google.maps.LatLng(oldPos.lat() + dY * Config.metersPerLat, 
                                                            oldPos.lng() + dX * Config.metersPerLng));
+            UpdateTargetDistance();
+            
+            if (Config.mapAutoCenter) {
+                Map.googleMap.setCenter(Map.parachuteMarker.getPosition());
+            }
         },
         setAltitude: function(altitude) {
             this.altitude = altitude;
@@ -210,7 +202,7 @@
         },
         setHeading: function(heading) {
             this.heading = heading;
-            $(Map.parachuteImg).rotate({animateTo:this.heading});
+            $("#parachute").rotate({animateTo:this.heading});
         }
     }
 
@@ -222,8 +214,6 @@
                 this.stop();
             }
             
-            Parachute.init(Config.initialAltitude, Config.windDirection, Map.parachuteMarker);
-
             var that = this; // hack scoping
             this.LastUpdate = new Date().getTime();
             this.IntervalID = setInterval(function() {
@@ -264,12 +254,6 @@
                 Parachute.descent(delta * 3 * Config.dropSpeed);
             }
 
-            UpdateTargetDistance();
-            
-            if (Config.mapAutoCenter) {
-                Map.googleMap.setCenter(Parachute.marker.getPosition());
-            }
-            
             if (Parachute.hasLanded()) {
                 this.stop();
             }
