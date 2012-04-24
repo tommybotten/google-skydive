@@ -15,56 +15,56 @@
 </head>
 <body>
 
-<div id="map_wrapper">
-  <div id="map_canvas" style="width:100%;height:100%;" ></div>
-</div>
+  <div id="map_wrapper">
+    <div id="map_canvas" style="width:100%;height:100%;" ></div>
+  </div>
+  
+  <img id="altimeter" src="img/altimeter.png">
+  <img id="altimeterArrow" src="img/altimeterArrow.png">
+  <div id="CurrentAltitude"></div>
 
-<img id="altimeter" src="img/altimeter.png">
-<img id="altimeterArrow" src="img/altimeterArrow.png">
-<div id="CurrentAltitude"></div>
+  <div id="icons">
+    <img id="jumpIcon" src="img/jumpIcon.png">
+    <img id="helpIcon" src="img/helpIcon.png">
+    <img id="settingsIcon" src="img/settingsIcon.png"> 
+  </div>
 
-<div id="icons">
-<img id="helpIcon" src="img/helpIcon.png">
-<img id="settingsIcon" src="img/settingsIcon.png">
-<img id="jumpIcon" src="img/jumpIcon.png">
-</div>
+  <div id="help" class="info" style="display:none">
+    Siirr‰ lentokone hyppykohtaan. Hypp‰‰ varjoikonista. Ohjaa nuolin‰pp‰imill‰ &larr; ja &rarr; :D Ei toimi IE:ll‰! <br/>
+  </div>
 
-<div id="help" style="display:none">
-  Siirr‰ lentokone hyppykohtaan. Hypp‰‰ varjoikonista. Ohjaa nuolin‰pp‰imill‰ &larr; ja &rarr; :D Ei toimi IE:ll‰! <br/>
-</div>
-
-<div id="settings" style="display:none">
-  <table>
-    <tr>
-      <td>Tuulen suunta</td>
-      <td><div class="slider" id="WindDirectionSlider"></div></td>
-      <td><input type="text" id="WindDirection" value="180" /></td>
-      <td>∞ <img id="windArrow" src="img/windArrow.png"></td>
-    </tr>
-    <tr>
-      <td>Tuulen nopeus</td>
-      <td><div class="slider" id="WindSpeedSlider"></div></td>
-      <td><input type="text" id="WindSpeed" value="5" /></td>
-      <td>m/s</td>
-    </tr>
-    <tr>
-      <td>Varjon ilmanopeus</td>
-      <td><div class="slider" id="ParachuteSpeedSlider"></div></td>
-      <td><input type="text" id="ParachuteSpeed" value="8" /></td>
-      <td>m/s</td>
-    </tr>
-    <tr>
-      <td>Varjon laskunopeus</td>
-      <td><div class="slider" id="DropSpeedSlider"></div></td>
-      <td><input type="text" id="DropSpeed" value="3" /></td>
-      <td>m/s</td>
-    </tr>
-    <tr>
-      <td>Keskit‰ kartta</td>
-      <td colspan=3><input type="checkbox" id="MapAutoCenter" value="1000" /></td>
-    </tr>
-  </table>
-</div>
-
+  <div id="settings" class="info" style="display:none">
+    <table>
+      <tr>
+        <td>Tuulen suunta</td>
+        <td><div class="slider" id="WindDirectionSlider"></div></td>
+        <td><input type="text" id="WindDirection" value="180" /></td>
+        <td>∞ <img id="windArrow" src="img/windArrow.png"></td>
+      </tr>
+      <tr>
+        <td>Tuulen nopeus</td>
+        <td><div class="slider" id="WindSpeedSlider"></div></td>
+        <td><input type="text" id="WindSpeed" value="5" /></td>
+        <td>m/s</td>
+      </tr>
+      <tr>
+        <td>Varjon ilmanopeus</td>
+        <td><div class="slider" id="ParachuteSpeedSlider"></div></td>
+        <td><input type="text" id="ParachuteSpeed" value="8" /></td>
+        <td>m/s</td>
+      </tr>
+      <tr>
+        <td>Varjon laskunopeus</td>
+        <td><div class="slider" id="DropSpeedSlider"></div></td>
+        <td><input type="text" id="DropSpeed" value="3" /></td>
+        <td>m/s</td>
+      </tr>
+      <tr>
+        <td>Keskit‰ kartta</td>
+        <td colspan=3><input type="checkbox" id="MapAutoCenter" value="1000" /></td>
+      </tr>
+    </table>
+  </div>
+  
 </body>
 </html>

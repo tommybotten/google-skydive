@@ -30,9 +30,6 @@
         });
 
         Map.init();
-        Config.createControls();
-        Config.init();
-        Parachute.init(Config.initialAltitude, Config.windDirection, Map.parachuteMarker);
     });
 
     var Map = {
@@ -88,14 +85,16 @@
                 labelStyle: {opacity: 1.00}
             });
             this.parachuteMarker.setZIndex(1000000);
-            
+
             var that = this; // hack scoping
             google.maps.event.addListener(this.planeMarker, 'dragend', function(event) {
                 var targetPos = that.targetMarker.getPosition();
                 var planePos = that.planeMarker.getPosition();
                 var bearing = CalcBearingBetween(targetPos, planePos);
                 $("#WindDirection").val(Math.round(bearing)).change();
-
+                
+                that.parachuteMarker.setPosition(that.planeMarker.getPosition());
+                
                 UpdateTargetDistance();
             });  
             
@@ -105,6 +104,9 @@
             
             google.maps.event.addListenerOnce(this.googleMap, 'idle', function(){
                 UpdateTargetDistance();
+                Config.createControls();
+                Config.init();
+                Parachute.init(Config.initialAltitude, Config.windDirection);
             });
         },
         changeZoomLevel: function(delta) {
@@ -163,14 +165,12 @@
     }
 
     var Parachute = {
-        init: function(altitude, heading, marker) {
+        init: function(altitude, heading) {
             this.setAltitude(altitude);
             this.setHeading(heading);  
-            this.marker = marker;
         },
         jump: function() {
-            this.marker.setPosition(Map.planeMarker.getPosition());
-            this.marker.setMap(Map.googleMap);
+            Map.parachuteMarker.setMap(Map.googleMap);
             Engine.start();
         },
         hasLanded: function() {
@@ -184,7 +184,7 @@
                 fillColor: "#0000FF",
                 fillOpacity: 0.5,
                 map: Map.googleMap,
-                center: this.marker.getPosition(),
+                center: Map.parachuteMarker.getPosition(),
                 radius: 30
             });
         },  
@@ -199,8 +199,8 @@
             this.setHeading(this.heading + degrees);
         },
         fly: function(dX, dY) {
-            var oldPos = this.marker.getPosition();
-            this.marker.setPosition(new google.maps.LatLng(oldPos.lat() + dY * Config.metersPerLat, 
+            var oldPos = Map.parachuteMarker.getPosition();
+            Map.parachuteMarker.setPosition(new google.maps.LatLng(oldPos.lat() + dY * Config.metersPerLat, 
                                                            oldPos.lng() + dX * Config.metersPerLng));
         },
         setAltitude: function(altitude) {
@@ -277,9 +277,7 @@
     }
     
     function UpdateTargetDistance() {
-        var foo = Engine.running();
-        var pos = foo ? Map.parachuteMarker.getPosition() : Map.planeMarker.getPosition();
-        var targetDistance = CalcDistanceBetween(pos, Map.targetMarker.getPosition());
+        var targetDistance = CalcDistanceBetween(Map.parachuteMarker.getPosition(), Map.targetMarker.getPosition());
         $(".TargetDistanceLabel").text(Math.round(targetDistance));
     }
     
