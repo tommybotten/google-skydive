@@ -19,6 +19,15 @@
         $("input").change( function() {
             Config.init();
         });
+        $("#helpIcon").click(function() {
+            $("#help").toggle('slide');
+        });
+        $("#settingsIcon").click(function() {
+            $("#settings").toggle('slide');
+        });
+        $("#jumpIcon").click(function() {
+            Parachute.jump();
+        });
 
         Map.init();
         Config.createControls();
@@ -81,12 +90,6 @@
             this.parachuteMarker.setZIndex(1000000);
             
             var that = this; // hack scoping
-            google.maps.event.addListener(this.planeMarker, 'dblclick', function(event) {
-                that.parachuteMarker.setPosition(that.planeMarker.getPosition());
-                that.parachuteMarker.setMap(that.googleMap);
-                Engine.start();
-            });
-
             google.maps.event.addListener(this.planeMarker, 'dragend', function(event) {
                 var targetPos = that.targetMarker.getPosition();
                 var planePos = that.planeMarker.getPosition();
@@ -162,6 +165,11 @@
             this.setAltitude(altitude);
             this.setHeading(heading);  
             this.marker = marker;
+        },
+        jump: function() {
+            this.marker.setPosition(Map.planeMarker.getPosition());
+            this.marker.setMap(Map.googleMap);
+            Engine.start();
         },
         hasLanded: function() {
             return this.altitude <= 0;
