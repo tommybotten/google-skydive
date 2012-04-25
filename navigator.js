@@ -7,7 +7,7 @@
             Engine.pressedKeys[e.keyCode] = false;
         });
         $("input").change( function() {
-            Config.init();
+            Config.load();
         });
         $("#helpIcon").click(function() {
             $("#help").toggle('slide');
@@ -18,7 +18,7 @@
             $("#settingsIcon").toggleClass('toggled');
         });
         $("#jumpIcon").click(function() {
-            if (Parachute.isActive()) {
+            if ($("#jumpIcon").hasClass('toggled')) {
                 Parachute.stop();
             } else {
                 Parachute.start();
@@ -27,9 +27,8 @@
         });
 
         Map.init(function() {
-            Config.createControls();
             Config.init();
-            Parachute.init(Config.initialAltitude, Config.windDirection);
+            Parachute.reset();
         });
     });
 
@@ -95,113 +94,53 @@
                 UpdateTargetDistance();
                 callback();
             });
-        },
-        changeZoomLevel: function(delta) {
-            var newZoom = this.googleMap.getZoom() + delta;
-            if (newZoom >= 0 && newZoom <= 19) {
-                this.googleMap.setZoom(newZoom);
-                this.googleMap.setCenter(this.parachuteMarker.getPosition());
-            }
         }
     }
     
-    var Config = {
-        initialAltitude: 1000,
-        parachuteTurnSpeed: 150,
-        createControls: function() {
-            $("#WindDirectionSlider").slider({
-                min: -10, max: 361, step: 10, value: 180,
-                slide: function(){ $("#WindDirection").val($(this).slider("value")).change(); }
-            });
-
-            $("#WindSpeedSlider").slider({
-                min: -1, max: 15, step: 1, value: 8, range: 'min',
-                slide: function(){ $("#WindSpeed").val($(this).slider("value")).change(); }
-            });
-            
-            $("#WindSpeedSlider").slider({
-                min: -1, max: 15, step: 1, value: 5, range: 'min',
-                slide: function(){ $("#WindSpeed").val($(this).slider("value")).change(); }
-            });
-            
-            $("#ParachuteSpeedSlider").slider({
-                min: -1, max: 15, step: 1, value: 8, range: 'min',
-                slide: function(){ $("#ParachuteSpeed").val($(this).slider("value")).change(); }
-            });
-            
-            $("#DropSpeedSlider").slider({
-                min: -1, max: 50, step: 1, value: 3, range: 'min',
-                slide: function(){ $("#DropSpeed").val($(this).slider("value")).change(); }
-            });
-            
-            $(".slider .ui-slider-handle").unbind('keydown');
-        },
-        init: function() {
-            this.windDirection = parseInt($("#WindDirection").val()) - 180;
-            this.windSpeed = parseInt($("#WindSpeed").val());
-            this.parachuteSpeed = parseInt($("#ParachuteSpeed").val());
-            this.dropSpeed = parseInt($("#DropSpeed").val());
-            this.mapAutoCenter = $("#MapAutoCenter").is(':checked'); 
-            
-            var pos = Map.planeMarker.getPosition();
-            this.metersPerLat = 1 / CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat() + 1, pos.lng()));
-            this.metersPerLng = 1 / CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat(), pos.lng()+1));
-
-            $("#windArrow").rotate({animateTo:this.windDirection});
-        }
-    }
-
     var Parachute = {
-        init: function(altitude, heading) {
-            this.setAltitude(altitude);
-            this.setHeading(heading);
+        reset: function() {
+            this.setAltitude(Config.initialAltitude);
+            this.setHeading(Config.windDirection);
+            Map.parachuteMarker.setPosition(Map.planeMarker.getPosition());
+            UpdateTargetDistance();
         },
         start: function() {
-            this.init(Config.initialAltitude, Config.windDirection);
-            Map.parachuteMarker.setPosition(Map.planeMarker.getPosition());
+            this.reset();
             Map.parachuteMarker.setVisible(true);
             Map.planeMarker.setVisible(false);
             Engine.start();
         },   
         stop: function() {
-            this.init(Config.initialAltitude, Config.windDirection);
             Map.parachuteMarker.setVisible(false);
             Map.planeMarker.setVisible(true);
             Engine.stop();
-        },
-        isActive: function() {
-            return Map.parachuteMarker.getVisible();
-        },
-        hasLanded: function() {
-            return this.altitude <= 0;
-        },
-        land: function() {
-            new google.maps.Circle({
-                strokeColor: "#00FF00",
-                strokeOpacity: 1,
-                strokeWeight: 1,
-                fillColor: "#0000FF",
-                fillOpacity: 0.5,
-                map: Map.googleMap,
-                center: Map.parachuteMarker.getPosition(),
-                radius: 30
-            });
+            this.reset();
         },  
-        descent: function(meters) {
-            var drop = (this.altitude > meters) ? meters : this.altitude;
-            this.setAltitude(this.altitude - drop);
-            if (this.hasLanded()) {
-              this.land();
-            }
-        },
-        turn: function(degrees) {
+        rotate: function(degrees) {
             this.setHeading(this.heading + degrees);
         },
-        fly: function(dX, dY) {
+        move: function(dX, dY, dZ) {
+            // xy-plane
             var oldPos = Map.parachuteMarker.getPosition();
-            Map.parachuteMarker.setPosition(new google.maps.LatLng(oldPos.lat() + dY * Config.metersPerLat, 
-                                                           oldPos.lng() + dX * Config.metersPerLng));
+            Map.parachuteMarker.setPosition(new google.maps.LatLng(oldPos.lat() + dY * Config.metersPerLat, oldPos.lng() + dX * Config.metersPerLng));
             UpdateTargetDistance();
+            
+            // z-plane
+            var drop = (this.altitude > dZ) ? dZ : this.altitude;
+            this.setAltitude(this.altitude - drop);
+            if (this.altitude <= 0) {
+                Engine.stop();
+                new google.maps.Circle({
+                    strokeColor: "#00FF00",
+                    strokeOpacity: 1,
+                    strokeWeight: 1,
+                    fillColor: "#0000FF",
+                    fillOpacity: 0.5,
+                    map: Map.googleMap,
+                    center: Map.parachuteMarker.getPosition(),
+                    radius: 30
+                });
+            }
             
             if (Config.mapAutoCenter) {
                 Map.googleMap.setCenter(Map.parachuteMarker.getPosition());
@@ -235,12 +174,16 @@
                 that.tick(delta);
             }, 30);
         },
+        stop: function() {
+            clearInterval(this.IntervalID);
+            this.IntervalID = false;
+        },
         tick: function(delta) {
             // heading
             var turningLeft = this.pressedKeys[37];
             var turningRight = this.pressedKeys[39];
             if (turningLeft || turningRight) { 
-                Parachute.turn(delta * Config.parachuteTurnSpeed * (turningLeft ? -1 : 1));
+                Parachute.rotate(delta * Config.parachuteTurnSpeed * (turningLeft ? -1 : 1));
             }
 
             // parachute speed           
@@ -249,23 +192,62 @@
             // wind speed
             dX += Math.sin(toRadians(Config.windDirection)) * delta * Config.windSpeed;
             dY += Math.cos(toRadians(Config.windDirection)) * delta * Config.windSpeed;
-            // fly
-            Parachute.fly(dX, dY);
-            
+
             // drop
-            Parachute.descent(delta * Config.dropSpeed);
+            var dZ = delta * Config.dropSpeed;
             if (turningLeft || turningRight) {
                 // just try to simulate turning..
-                Parachute.descent(delta * 3 * Config.dropSpeed);
+                dZ += delta * 3 * Config.dropSpeed;
             }
 
-            if (Parachute.hasLanded()) {
-                this.stop();
-            }
+            Parachute.move(dX, dY, dZ);
+        }
+    }
+
+    var Config = {
+        initialAltitude: 1000,
+        parachuteTurnSpeed: 150,
+        init: function() {
+            $("#WindDirectionSlider").slider({
+                min: -10, max: 361, step: 10, value: 180,
+                slide: function(){ $("#WindDirection").val($(this).slider("value")).change(); }
+            });
+
+            $("#WindSpeedSlider").slider({
+                min: -1, max: 15, step: 1, value: 8, range: 'min',
+                slide: function(){ $("#WindSpeed").val($(this).slider("value")).change(); }
+            });
+            
+            $("#WindSpeedSlider").slider({
+                min: -1, max: 15, step: 1, value: 5, range: 'min',
+                slide: function(){ $("#WindSpeed").val($(this).slider("value")).change(); }
+            });
+            
+            $("#ParachuteSpeedSlider").slider({
+                min: -1, max: 15, step: 1, value: 8, range: 'min',
+                slide: function(){ $("#ParachuteSpeed").val($(this).slider("value")).change(); }
+            });
+            
+            $("#DropSpeedSlider").slider({
+                min: -1, max: 50, step: 1, value: 3, range: 'min',
+                slide: function(){ $("#DropSpeed").val($(this).slider("value")).change(); }
+            });
+            
+            $(".slider .ui-slider-handle").unbind('keydown');
+            this.load();
         },
-        stop: function() {
-            clearInterval(this.IntervalID);
-            this.IntervalID = false;
+        load: function() {
+            this.windDirection = parseInt($("#WindDirection").val()) - 180;
+            this.windSpeed = parseInt($("#WindSpeed").val());
+            this.parachuteSpeed = parseInt($("#ParachuteSpeed").val());
+            this.dropSpeed = parseInt($("#DropSpeed").val());
+            this.mapAutoCenter = $("#MapAutoCenter").is(':checked'); 
+            
+            var pos = Map.planeMarker.getPosition();
+            this.metersPerLat = 1 / CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat() + 1, pos.lng()));
+            this.metersPerLng = 1 / CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat(), pos.lng()+1));
+
+            $("#windArrow").rotate({animateTo:this.windDirection});
         }
     }
     
