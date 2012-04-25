@@ -2,16 +2,6 @@
     $(document).ready(function(){
         $(document).keydown(function(e){
             Engine.pressedKeys[e.keyCode] = true;
-
-            if (e.keyCode == 'A'.charCodeAt(0)) {
-                Map.changeZoomLevel(-1);
-            }
-            if (e.keyCode == 'Z'.charCodeAt(0)) {
-                Map.changeZoomLevel(1);
-            }
-            if (e.keyCode == 'Q'.charCodeAt(0)) {
-                Map.googleMap.setCenter(Map.parachuteMarker.getPosition());
-            }
         });
         $(document).keyup(function(e){
             Engine.pressedKeys[e.keyCode] = false;
@@ -28,7 +18,11 @@
             $("#settingsIcon").toggleClass('toggled');
         });
         $("#jumpIcon").click(function() {
-            Parachute.jump();
+            if (Parachute.isActive()) {
+                Parachute.stop();
+            } else {
+                Parachute.start();
+            }
             $("#jumpIcon").toggleClass('toggled');
         });
 
@@ -162,11 +156,21 @@
             this.setAltitude(altitude);
             this.setHeading(heading);
         },
-        jump: function() {
+        start: function() {
             this.init(Config.initialAltitude, Config.windDirection);
             Map.parachuteMarker.setPosition(Map.planeMarker.getPosition());
             Map.parachuteMarker.setVisible(true);
+            Map.planeMarker.setVisible(false);
             Engine.start();
+        },   
+        stop: function() {
+            this.init(Config.initialAltitude, Config.windDirection);
+            Map.parachuteMarker.setVisible(false);
+            Map.planeMarker.setVisible(true);
+            Engine.stop();
+        },
+        isActive: function() {
+            return Map.parachuteMarker.getVisible();
         },
         hasLanded: function() {
             return this.altitude <= 0;
@@ -218,7 +222,7 @@
         pressedKeys: {},
         IntervalID: false,
         start: function() {
-            if (this.running()) {
+            if (this.IntervalID != false) {
                 this.stop();
             }
             
@@ -230,13 +234,6 @@
                 that.LastUpdate = currentTime;
                 that.tick(delta);
             }, 30);
-        },
-        stop: function() {
-            clearInterval(this.IntervalID);
-            this.IntervalID = false;
-        },
-        running: function() {
-            return this.IntervalID != false;
         },
         tick: function(delta) {
             // heading
@@ -265,6 +262,10 @@
             if (Parachute.hasLanded()) {
                 this.stop();
             }
+        },
+        stop: function() {
+            clearInterval(this.IntervalID);
+            this.IntervalID = false;
         }
     }
     
