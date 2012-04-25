@@ -21,12 +21,15 @@
         });
         $("#helpIcon").click(function() {
             $("#help").toggle('slide');
+            $("#helpIcon").toggleClass('toggled');
         });
         $("#settingsIcon").click(function() {
             $("#settings").toggle('slide');
+            $("#settingsIcon").toggleClass('toggled');
         });
         $("#jumpIcon").click(function() {
             Parachute.jump();
+            $("#jumpIcon").toggleClass('toggled');
         });
 
         Map.init(function() {
