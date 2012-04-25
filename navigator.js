@@ -68,12 +68,16 @@
                 icon: "img/airplane.png"
             });
 
+            var parachuteImg = document.createElement("img");
+            parachuteImg.src = "img/parachute.png";
+            parachuteImg.setAttribute("id", "parachute");
+
             this.parachuteMarker = new MarkerWithLabel({
                 position: this.planeMarker.getPosition(),
                 map: this.googleMap,
                 visible: false,
                 icon: "img/blank.png",
-                labelContent: '<img id="parachute" src="img/parachute.png"/>',
+                labelContent: parachuteImg,
                 labelAnchor: new google.maps.Point(13, 14),
                 zIndex: 1000000
             });
