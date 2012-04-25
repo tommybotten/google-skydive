@@ -160,7 +160,8 @@
             this.setHeading(heading);
         },
         jump: function() {
-            this.init(Config.initialAltitude, Config.windDirection, Map.parachuteMarker);
+            this.init(Config.initialAltitude, Config.windDirection);
+            Map.parachuteMarker.setPosition(Map.planeMarker.getPosition());
             Map.parachuteMarker.setVisible(true);
             Engine.start();
         },
