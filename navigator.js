@@ -23,14 +23,16 @@
             $("#jumpIcon").toggleClass('toggled');
         });
 
-        Config.init();
-        Map.init(function() {
-            Parachute.reset();
-        });
+        Config.LoadSettingsFromUrl();
+        Config.CreateControls();
+        Map.CreateMap();
+        Map.CreateMarkers();
+        Parachute.reset();
     });
 
+    
     var Map = {
-        init: function(callback) {
+        CreateMap: function() {
             var mapOptions = {
                 zoom: Config.MapZoom,
                 center: new google.maps.LatLng(Config.PlaneLatitude, Config.PlaneLongitude),
@@ -44,14 +46,13 @@
                 disableDoubleClickZoom: true
             };
             this.googleMap = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-
-            this.targetMarker = new MarkerWithLabel({
+        },
+        CreateMarkers: function() {
+            this.targetMarker = new google.maps.Marker({
                 position: new google.maps.LatLng(Config.TargetLatitude, Config.TargetLongitude),
                 map: this.googleMap,
                 draggable: true,
-                icon: "http://www.google.com/mapfiles/arrow.png",
-                labelAnchor: new google.maps.Point(22, 0),
-                labelClass: "TargetDistanceLabel", 
+                icon: "http://www.google.com/mapfiles/arrow.png"
             });
 
             this.planeMarker = new google.maps.Marker({
@@ -77,25 +78,20 @@
 
             var that = this; // hack scoping
             google.maps.event.addListener(this.planeMarker, 'dragend', function(event) {
-                that.parachuteMarker.setPosition(that.planeMarker.getPosition());
-                var bearing = CalcBearingBetween(that.targetMarker.getPosition(), that.planeMarker.getPosition());
-                
+                Config.PlaneLatitude = that.planeMarker.getPosition().lat();
+                Config.PlaneLongitude = that.planeMarker.getPosition().lng();
+                var bearing = MathUtils.CalcBearingBetween(that.targetMarker.getPosition(), that.planeMarker.getPosition());
                 Config.WindDirectionChanged(Math.round(bearing));
-                UpdateTargetDistance();
             });  
             
             google.maps.event.addListener(this.targetMarker, 'dragend', function(event) {
-                UpdateTargetDistance();
+                Config.TargetLatitude = that.targetMarker.getPosition().lat();
+                Config.TargetLongitude = that.targetMarker.getPosition().lng();
             });
             
             var pos = Map.planeMarker.getPosition();
-            this.metersPerLat = 1 / CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat() + 1, pos.lng()));
-            this.metersPerLng = 1 / CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat(), pos.lng()+1)); 
-            
-            google.maps.event.addListenerOnce(this.googleMap, 'idle', function(){
-                UpdateTargetDistance();
-                callback();
-            });
+            this.metersPerLat = 1 / MathUtils.CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat() + 1, pos.lng()));
+            this.metersPerLng = 1 / MathUtils.CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat(), pos.lng()+1)); 
         }
     }
     
@@ -103,8 +99,7 @@
         reset: function() {
             this.setAltitude(Config.InitialAltitude);
             this.setHeading(Config.WindDirection);
-            Map.parachuteMarker.setPosition(Map.planeMarker.getPosition());
-            UpdateTargetDistance();
+            Map.parachuteMarker.setPosition(new google.maps.LatLng(Config.PlaneLatitude, Config.PlaneLongitude));
         },
         start: function() {
             this.reset();
@@ -125,9 +120,8 @@
             // xy-plane
             var oldPos = Map.parachuteMarker.getPosition();
             Map.parachuteMarker.setPosition(new google.maps.LatLng(oldPos.lat() + dY * Map.metersPerLat, oldPos.lng() + dX * Map.metersPerLng));
-            UpdateTargetDistance();
-            
-            // z-plane
+
+            // z-level
             var drop = (this.altitude > dZ) ? dZ : this.altitude;
             this.setAltitude(this.altitude - drop);
             if (this.altitude <= 0) {
@@ -189,11 +183,11 @@
             }
 
             // parachute speed           
-            var dX = Math.sin(toRadians(Parachute.heading)) * delta * Config.ParachuteSpeed;
-            var dY = Math.cos(toRadians(Parachute.heading)) * delta * Config.ParachuteSpeed;
+            var dX = Math.sin(MathUtils.ToRadians(Parachute.heading)) * delta * Config.ParachuteSpeed;
+            var dY = Math.cos(MathUtils.ToRadians(Parachute.heading)) * delta * Config.ParachuteSpeed;
             // wind speed
-            dX += Math.sin(toRadians(Config.WindDirection)) * delta * Config.WindSpeed;
-            dY += Math.cos(toRadians(Config.WindDirection)) * delta * Config.WindSpeed;
+            dX += Math.sin(MathUtils.ToRadians(Config.WindDirection)) * delta * Config.WindSpeed;
+            dY += Math.cos(MathUtils.ToRadians(Config.WindDirection)) * delta * Config.WindSpeed;
 
             // drop
             var dZ = delta * Config.DropSpeed;
@@ -204,11 +198,5 @@
 
             Parachute.move(dX, dY, dZ);
         }
-    }
-
-    function UpdateTargetDistance() {
-        var targetDistance = CalcDistanceBetween(Map.parachuteMarker.getPosition(), Map.targetMarker.getPosition());
-        $(".TargetDistanceLabel").text(Math.round(targetDistance));
-    }
-     
+    }    
 })(jQuery);

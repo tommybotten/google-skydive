@@ -12,10 +12,9 @@ var Config = {
     DropSpeed: 3,
     MapAutoCenter: false,
     
-    init: function() {
-        this.loadSettingsFromUrl();
-      
+    CreateControls: function() {
         var that = this; // hack scoping
+        
         $("#WindDirectionSlider").slider({
             min: 0, 
             max: 361, 
@@ -23,8 +22,9 @@ var Config = {
             slide: function() { that.WindDirectionChanged($(this).slider("value")); }
         });
         $("#WindDirection").change(function() {
-            that.WindDirectionChanged(parseInt($(that).val()));
+            that.WindDirectionChanged(parseInt($(this).val()));
         });
+        this.WindDirectionChanged(this.WindDirection);
 
         $("#WindSpeedSlider").slider({
             min: 0, 
@@ -35,8 +35,9 @@ var Config = {
             slide: function() { that.WindSpeedChanged($(this).slider("value")); }
         });
         $("#WindSpeed").change(function() {
-            that.WindSpeedChanged(parseInt($(that).val()));
+            that.WindSpeedChanged(parseInt($(this).val()));
         });
+        this.WindSpeedChanged(this.WindSpeed);
         
         $("#ParachuteSpeedSlider").slider({
             min: 0, 
@@ -47,8 +48,9 @@ var Config = {
             slide: function() { that.ParachuteSpeedChanged($(this).slider("value")); }
         });
         $("#ParachuteSpeed").change(function() {
-            that.ParachuteSpeedChanged(parseInt($(that).val()));
+            that.ParachuteSpeedChanged(parseInt($(this).val()));
         });
+        this.ParachuteSpeedChanged(this.ParachuteSpeed);
         
         $("#DropSpeedSlider").slider({
             min: 0, 
@@ -60,21 +62,45 @@ var Config = {
             slide: function() { that.DropSpeedChanged($(this).slider("value")); }
         });
         $("#DropSpeed").change(function() {
-            that.DropSpeedChanged(parseInt($(that).val()));
+            that.DropSpeedChanged(parseInt($(this).val()));
         });
+        this.DropSpeedChanged(this.DropSpeed);
         
+        $("#MapAutoCenter").change(function() {
+            that.MapAutoCenter = $(this).attr('checked');
+            that.SaveSettingsToUrl();
+        });
         $("#MapAutoCenter").attr('checked', this.MapAutoCenter);
         
-        $(".slider .ui-slider-handle").unbind('keydown');
-        
-        this.WindDirectionChanged(this.WindDirection);
-        this.WindSpeedChanged(this.WindSpeed);
-        this.ParachuteSpeedChanged(this.ParachuteSpeed);
-        this.DropSpeedChanged(this.DropSpeed);
-
-        this.saveSettingsToUrl();
+        // Disable slider keyboard binds
+        $(".slider .ui-slider-handle").unbind('keydown'); 
     },
-    loadSettingsFromUrl: function() {
+    WindDirectionChanged: function(value) {
+        this.WindDirection = value - 180
+        $("#windArrow").rotate({animateTo:this.WindDirection});
+        $("#WindDirectionSlider").slider("value", value);
+        $("#WindDirection").val(value);
+        this.SaveSettingsToUrl();
+    },
+    WindSpeedChanged: function(value) {
+        this.WindSpeed = value;
+        $("#WindSpeedSlider").slider("value", value);
+        $("#WindSpeed").val(value);
+        this.SaveSettingsToUrl();
+    },  
+    ParachuteSpeedChanged: function(value) {
+        this.ParachuteSpeed = value;
+        $("#ParachuteSpeedSlider").slider("value", value);
+        $("#ParachuteSpeed").val(value);
+        this.SaveSettingsToUrl();
+    },  
+    DropSpeedChanged: function(value) {
+        this.DropSpeed = value;
+        $("#DropSpeedSlider").slider("value", value);
+        $("#DropSpeed").val(value);
+        this.SaveSettingsToUrl();
+    },
+    LoadSettingsFromUrl: function() {
         this.MapZoom = parseInt(getRequestParameter('MapZoom')) || this.MapZoom;
         this.MapLatitude = parseFloat(getRequestParameter('MapLatitude')) || this.MapLatitude;
         this.MapLongitude = parseFloat(getRequestParameter('MapLongitude')) || this.MapLongitude;
@@ -87,10 +113,10 @@ var Config = {
         this.ParachuteSpeed = parseInt(getRequestParameter('ParachuteSpeed')) || this.ParachuteSpeed;
         this.ParachuteTurnSpeed = parseInt(getRequestParameter('ParachuteTurnSpeed')) || this.ParachuteTurnSpeed;
         this.DropSpeed = parseInt(getRequestParameter('DropSpeed')) || this.DropSpeed;
-        this.MapAutoCenter = getRequestParameter('MapAutoCenter') || this.MapAutoCenter;
+        this.MapAutoCenter = getRequestParameter('MapAutoCenter') == 'true' || this.MapAutoCenter;
         this.InitialAltitude = parseInt(getRequestParameter('InitialAltitude')) || this.InitialAltitude;
     },
-    saveSettingsToUrl: function() {
+    SaveSettingsToUrl: function() {
         var values = {
             MapZoom: this.MapZoom,
             MapLatitude: this.MapLatitude,
@@ -105,34 +131,9 @@ var Config = {
             WindSpeed: this.WindSpeed,
             ParachuteSpeed: this.ParachuteSpeed,
             DropSpeed: this.DropSpeed,
-            MapAutoCenter: this.MapAutoCenter
+            MapAutoCenter: this.MapAutoCenter ? 'true' : 'false'
         };
         $('#Link').attr('href', '?' + $.param(values));
-    },
-    WindDirectionChanged: function(value) {
-        this.WindDirection = value - 180
-        $("#windArrow").rotate({animateTo:this.WindDirection});
-        $("#WindDirectionSlider").slider("value", value);
-        $("#WindDirection").val(value);
-        this.saveSettingsToUrl();
-    },
-    WindSpeedChanged: function(value) {
-        this.WindSpeed = value;
-        $("#WindSpeedSlider").slider("value", value);
-        $("#WindSpeed").val(value);
-        this.saveSettingsToUrl();
-    },  
-    ParachuteSpeedChanged: function(value) {
-        this.ParachuteSpeed = value;
-        $("#ParachuteSpeedSlider").slider("value", value);
-        $("#ParachuteSpeed").val(value);
-        this.saveSettingsToUrl();
-    },  
-    DropSpeedChanged: function(value) {
-        this.DropSpeed = value;
-        $("#DropSpeedSlider").slider("value", value);
-        $("#DropSpeed").val(value);
-        this.saveSettingsToUrl();
     }
 }
 
@@ -143,7 +144,7 @@ function getRequestParameter(name)
     var regex = new RegExp(regexS);
     var results = regex.exec(window.location.search);
     if(results == null)
-      return "";
+        return "";
     else
-      return decodeURIComponent(results[1].replace(/\+/g, " "));
+        return decodeURIComponent(results[1].replace(/\+/g, " "));
 }
