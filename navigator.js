@@ -179,7 +179,8 @@
             var turningLeft = this.pressedKeys[37];
             var turningRight = this.pressedKeys[39];
             if (turningLeft || turningRight) { 
-                Parachute.rotate(delta * Config.ParachuteTurnSpeed * (turningLeft ? -1 : 1));
+                var rotation = delta * Config.ParachuteTurnSpeed * (turningLeft ? -1 : 1);
+                Parachute.rotate(rotation);
             }
 
             // parachute speed           
@@ -196,6 +197,9 @@
                 dZ += delta * 3 * Config.DropSpeed;
             }
 
+            dX *= Config.TimeSpeedUp;
+            dY *= Config.TimeSpeedUp;
+            dZ *= Config.TimeSpeedUp;
             Parachute.move(dX, dY, dZ);
         }
     }    

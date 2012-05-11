@@ -10,11 +10,23 @@ var Config = {
     WindSpeed: 5,
     ParachuteSpeed: 8,
     DropSpeed: 3,
+    TimeSpeedUp: 1,
     ShowAltitude: true,
     MapAutoCenter: false,
     
     CreateControls: function() {
         var that = this; // hack scoping
+        
+        $("#TimeSpeedUpSlider").slider({
+            min: 0, 
+            max: 5, 
+            step: 1, 
+            slide: function() { that.TimeSpeedUpChanged($(this).slider("value")); }
+        });
+        $("#TimeSpeedUp").change(function() {
+            that.TimeSpeedUpChanged(parseInt($(this).val()));
+        });
+        this.TimeSpeedUpChanged(this.TimeSpeedUp);
         
         $("#WindDirectionSlider").slider({
             min: 0, 
@@ -82,30 +94,36 @@ var Config = {
         // Disable slider keyboard binds
         $(".slider .ui-slider-handle").unbind('keydown'); 
     },
+    TimeSpeedUpChanged: function(value) {
+        this.TimeSpeedUp = value;
+        $("#TimeSpeedUpSlider").slider("value", value);
+        $("#TimeSpeedUp").val(value);
+        this.SaveSettingsToLink();
+    },
     WindDirectionChanged: function(value) {
-        this.WindDirection = value - 180
+        this.WindDirection = value - 180;
         $("#windArrow").rotate({animateTo:this.WindDirection});
         $("#WindDirectionSlider").slider("value", value);
         $("#WindDirection").val(value);
-        this.SaveSettingsToUrl();
+        this.SaveSettingsToLink();
     },
     WindSpeedChanged: function(value) {
         this.WindSpeed = value;
         $("#WindSpeedSlider").slider("value", value);
         $("#WindSpeed").val(value);
-        this.SaveSettingsToUrl();
+        this.SaveSettingsToLink();
     },  
     ParachuteSpeedChanged: function(value) {
         this.ParachuteSpeed = value;
         $("#ParachuteSpeedSlider").slider("value", value);
         $("#ParachuteSpeed").val(value);
-        this.SaveSettingsToUrl();
+        this.SaveSettingsToLink();
     },  
     DropSpeedChanged: function(value) {
         this.DropSpeed = value;
         $("#DropSpeedSlider").slider("value", value);
         $("#DropSpeed").val(value);
-        this.SaveSettingsToUrl();
+        this.SaveSettingsToLink();
     },
     ShowAltitudeChanged: function(value) {
         this.ShowAltitude = value;
@@ -115,11 +133,11 @@ var Config = {
         else {
             $("#CurrentAltitude").hide();
         }  
-        this.SaveSettingsToUrl(); 
+        this.SaveSettingsToLink(); 
     },
     MapAutoCenterChanged: function(value) {
         this.MapAutoCenter = value;
-        this.SaveSettingsToUrl(); 
+        this.SaveSettingsToLink(); 
     },
     LoadSettingsFromUrl: function() {
         this.MapZoom = getIntParam('MapZoom', this.MapZoom);
@@ -134,11 +152,12 @@ var Config = {
         this.ParachuteSpeed = getIntParam('ParachuteSpeed', this.ParachuteSpeed);
         this.ParachuteTurnSpeed = getIntParam('ParachuteTurnSpeed', this.ParachuteTurnSpeed);
         this.DropSpeed = getIntParam('DropSpeed', this.DropSpeed);
+        this.TimeSpeedUp = getIntParam('TimeSpeedUp', this.TimeSpeedUp);
         this.ShowAltitude = getBooleanParam('ShowAltitude', this.ShowAltitude);
         this.MapAutoCenter = getBooleanParam('MapAutoCenter', this.MapAutoCenter);
         this.InitialAltitude = getIntParam('InitialAltitude', this.InitialAltitude);
     },
-    SaveSettingsToUrl: function() {
+    SaveSettingsToLink: function() {
         var values = {
             MapZoom: this.MapZoom,
             MapLatitude: this.MapLatitude,
@@ -153,6 +172,7 @@ var Config = {
             WindSpeed: this.WindSpeed,
             ParachuteSpeed: this.ParachuteSpeed,
             DropSpeed: this.DropSpeed,
+            TimeSpeedUp: this.TimeSpeedUp,
             ShowAltitude: this.ShowAltitude ? 'true' : 'false',
             MapAutoCenter: this.MapAutoCenter ? 'true' : 'false'
         };
