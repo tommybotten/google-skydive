@@ -175,31 +175,41 @@
             this.IntervalID = false;
         },
         tick: function(delta) {
-            // heading
-            var turningLeft = this.pressedKeys[37];
-            var turningRight = this.pressedKeys[39];
-            if (turningLeft || turningRight) { 
-                var rotation = delta * Config.ParachuteTurnSpeed * (turningLeft ? -1 : 1);
-                Parachute.rotate(rotation);
-            }
-
             // parachute speed           
             var dX = Math.sin(MathUtils.ToRadians(Parachute.heading)) * delta * Config.ParachuteSpeed;
             var dY = Math.cos(MathUtils.ToRadians(Parachute.heading)) * delta * Config.ParachuteSpeed;
             // wind speed
             dX += Math.sin(MathUtils.ToRadians(Config.WindDirection)) * delta * Config.WindSpeed;
             dY += Math.cos(MathUtils.ToRadians(Config.WindDirection)) * delta * Config.WindSpeed;
-
             // drop
             var dZ = delta * Config.DropSpeed;
-            if (turningLeft || turningRight) {
-                // just try to simulate turning..
-                dZ += delta * 3 * Config.DropSpeed;
-            }
-
+            
+            // apply speed up
             dX *= Config.TimeSpeedUp;
             dY *= Config.TimeSpeedUp;
             dZ *= Config.TimeSpeedUp;
+            
+            // handle direction
+            var braking = this.pressedKeys[37] && this.pressedKeys[39];
+            var turningLeft = this.pressedKeys[37] && !braking;
+            var turningRight = this.pressedKeys[39] && !braking;
+            
+            if (turningLeft || turningRight) { 
+                var rotation = delta * Config.ParachuteTurnSpeed * (turningLeft ? -1 : 1);
+                Parachute.rotate(rotation);
+            }
+            
+            if (turningLeft || turningRight) {
+                // just try to simulate how turnig affects drop..
+                dZ += delta * 3 * Config.DropSpeed;
+            }
+            
+            if (braking) {
+                dX *= 0.5;
+                dY *= 0.5;
+                dZ *= 0.5;
+            }
+            
             Parachute.move(dX, dY, dZ);
         }
     }    
