@@ -103,6 +103,7 @@ var Config = {
     },
     WindDirectionChanged: function(value) {
         this.WindDirection = value - 180;
+        $("#tuuliT").rotate({animateTo:this.WindDirection});
         $("#windArrow").rotate({animateTo:this.WindDirection});
         $("#WindDirectionSlider").slider("value", value);
         $("#WindDirection").val(value);
@@ -142,8 +143,6 @@ var Config = {
     },
     LoadSettingsFromUrl: function() {
         this.MapZoom = getIntParam('MapZoom', this.MapZoom);
-        this.MapLatitude = getFloatParam('MapLatitude', this.MapLatitude);
-        this.MapLongitude = getFloatParam('MapLongitude', this.MapLongitude);
         this.PlaneLatitude = getFloatParam('PlaneLatitude', this.PlaneLatitude);
         this.PlaneLongitude = getFloatParam('PlaneLongitude', this.PlaneLongitude);
         this.TargetLatitude = getFloatParam('TargetLatitude', this.TargetLatitude);
@@ -151,24 +150,18 @@ var Config = {
         this.WindDirection = getIntParam('WindDirection', this.WindDirection);
         this.WindSpeed = getIntParam('WindSpeed', this.WindSpeed);
         this.ParachuteSpeed = getIntParam('ParachuteSpeed', this.ParachuteSpeed);
-        this.ParachuteTurnSpeed = getIntParam('ParachuteTurnSpeed', this.ParachuteTurnSpeed);
         this.DropSpeed = getIntParam('DropSpeed', this.DropSpeed);
         this.TimeSpeedUp = getIntParam('TimeSpeedUp', this.TimeSpeedUp);
         this.ShowAltitude = getBooleanParam('ShowAltitude', this.ShowAltitude);
         this.MapAutoCenter = getBooleanParam('MapAutoCenter', this.MapAutoCenter);
-        this.InitialAltitude = getIntParam('InitialAltitude', this.InitialAltitude);
     },
     SaveSettingsToLink: function() {
         var values = {
             MapZoom: this.MapZoom,
-            MapLatitude: this.MapLatitude,
-            MapLongitude: this.MapLongitude,
             PlaneLatitude: this.PlaneLatitude,
             PlaneLongitude: this.PlaneLongitude,
             TargetLatitude: this.TargetLatitude, 
             TargetLongitude: this.TargetLongitude,
-            InitialAltitude: this.InitialAltitude,
-            ParachuteTurnSpeed: this.ParachuteTurnSpeed,
             WindDirection: this.WindDirection + 180,
             WindSpeed: this.WindSpeed,
             ParachuteSpeed: this.ParachuteSpeed,

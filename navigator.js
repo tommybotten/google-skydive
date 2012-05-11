@@ -48,11 +48,17 @@
             this.googleMap = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
         },
         CreateMarkers: function() {
-            this.targetMarker = new google.maps.Marker({
+            var tuulitImg = document.createElement("img");
+            tuulitImg.src = "img/tuuliT.png";
+            tuulitImg.setAttribute("id", "tuuliT");
+        
+            this.targetMarker = new MarkerWithLabel({
                 position: new google.maps.LatLng(Config.TargetLatitude, Config.TargetLongitude),
                 map: this.googleMap,
                 draggable: true,
-                icon: "http://www.google.com/mapfiles/arrow.png"
+                icon: "img/blank.png",
+                labelContent: tuulitImg,
+                labelAnchor: new google.maps.Point(12, 12),
             });
 
             this.planeMarker = new google.maps.Marker({
@@ -88,6 +94,10 @@
                 Config.TargetLatitude = that.targetMarker.getPosition().lat();
                 Config.TargetLongitude = that.targetMarker.getPosition().lng();
             });
+            
+             google.maps.event.addListenerOnce(this.googleMap, 'idle', function(){
+                Config.WindDirectionChanged(Config.WindDirection + 180);
+             });
             
             var pos = Map.planeMarker.getPosition();
             this.metersPerLat = 1 / MathUtils.CalcDistanceBetween(pos, new google.maps.LatLng(pos.lat() + 1, pos.lng()));
