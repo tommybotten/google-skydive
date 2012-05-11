@@ -18,10 +18,11 @@ var Config = {
         var that = this; // hack scoping
         
         $("#TimeSpeedUpSlider").slider({
-            min: 0, 
+            min: 1, 
             max: 5, 
             step: 1, 
-            slide: function() { that.TimeSpeedUpChanged($(this).slider("value")); }
+            range: 'min',
+            slide: function(event, ui) { that.TimeSpeedUpChanged(ui.value); }
         });
         $("#TimeSpeedUp").change(function() {
             that.TimeSpeedUpChanged(parseInt($(this).val()));
@@ -30,9 +31,9 @@ var Config = {
         
         $("#WindDirectionSlider").slider({
             min: 0, 
-            max: 361, 
+            max: 360, 
             step: 10, 
-            slide: function() { that.WindDirectionChanged($(this).slider("value")); }
+            slide: function(event, ui) { that.WindDirectionChanged(ui.value); }
         });
         $("#WindDirection").change(function() {
             that.WindDirectionChanged(parseInt($(this).val()));
@@ -45,7 +46,7 @@ var Config = {
             step: 1, 
             range: 'min',
             value: this.WindSpeed, 
-            slide: function() { that.WindSpeedChanged($(this).slider("value")); }
+            slide: function(event, ui) { that.WindSpeedChanged(ui.value); }
         });
         $("#WindSpeed").change(function() {
             that.WindSpeedChanged(parseInt($(this).val()));
@@ -58,7 +59,7 @@ var Config = {
             step: 1, 
             range: 'min',
             value: this.ParachuteSpeed, 
-            slide: function() { that.ParachuteSpeedChanged($(this).slider("value")); }
+            slide: function(event, ui) { that.ParachuteSpeedChanged(ui.value); }
         });
         $("#ParachuteSpeed").change(function() {
             that.ParachuteSpeedChanged(parseInt($(this).val()));
@@ -72,7 +73,7 @@ var Config = {
             value: this.DropSpeed,
             range: 'min',
             value: this.DropSpeed, 
-            slide: function() { that.DropSpeedChanged($(this).slider("value")); }
+            slide: function(event, ui) { that.DropSpeedChanged(ui.value); }
         });
         $("#DropSpeed").change(function() {
             that.DropSpeedChanged(parseInt($(this).val()));
