@@ -10,6 +10,7 @@ var Config = {
     WindSpeed: 5,
     ParachuteSpeed: 8,
     DropSpeed: 3,
+    ShowAltitude: true,
     MapAutoCenter: false,
     
     CreateControls: function() {
@@ -66,12 +67,18 @@ var Config = {
         });
         this.DropSpeedChanged(this.DropSpeed);
         
-        $("#MapAutoCenter").change(function() {
-            that.MapAutoCenter = $(this).attr('checked');
-            that.SaveSettingsToUrl();
+        $("#ShowAltitude").change(function() {
+            that.ShowAltitudeChanged($(this).attr('checked'));
         });
+        this.ShowAltitudeChanged(this.ShowAltitude);
+        $("#ShowAltitude").attr('checked', this.ShowAltitude);
+         
+        $("#MapAutoCenter").change(function() {
+            that.MapAutoCenterChanged($(this).attr('checked'));
+        });
+        this.MapAutoCenterChanged(this.MapAutoCenter);
         $("#MapAutoCenter").attr('checked', this.MapAutoCenter);
-        
+              
         // Disable slider keyboard binds
         $(".slider .ui-slider-handle").unbind('keydown'); 
     },
@@ -100,21 +107,36 @@ var Config = {
         $("#DropSpeed").val(value);
         this.SaveSettingsToUrl();
     },
+    ShowAltitudeChanged: function(value) {
+        this.ShowAltitude = value;
+        if (value) {
+            $("#CurrentAltitude").show();
+        }
+        else {
+            $("#CurrentAltitude").hide();
+        }  
+        this.SaveSettingsToUrl(); 
+    },
+    MapAutoCenterChanged: function(value) {
+        this.MapAutoCenter = value;
+        this.SaveSettingsToUrl(); 
+    },
     LoadSettingsFromUrl: function() {
-        this.MapZoom = parseInt(getRequestParameter('MapZoom')) || this.MapZoom;
-        this.MapLatitude = parseFloat(getRequestParameter('MapLatitude')) || this.MapLatitude;
-        this.MapLongitude = parseFloat(getRequestParameter('MapLongitude')) || this.MapLongitude;
-        this.PlaneLatitude = parseFloat(getRequestParameter('PlaneLatitude')) || this.PlaneLatitude;
-        this.PlaneLongitude = parseFloat(getRequestParameter('PlaneLongitude')) || this.PlaneLongitude;
-        this.TargetLatitude = parseFloat(getRequestParameter('TargetLatitude')) || this.TargetLatitude;
-        this.TargetLongitude = parseFloat(getRequestParameter('TargetLongitude')) || this.TargetLongitude;
-        this.WindDirection = parseInt(getRequestParameter('WindDirection')) || this.WindDirection;
-        this.WindSpeed = parseInt(getRequestParameter('WindSpeed')) || this.WindSpeed;
-        this.ParachuteSpeed = parseInt(getRequestParameter('ParachuteSpeed')) || this.ParachuteSpeed;
-        this.ParachuteTurnSpeed = parseInt(getRequestParameter('ParachuteTurnSpeed')) || this.ParachuteTurnSpeed;
-        this.DropSpeed = parseInt(getRequestParameter('DropSpeed')) || this.DropSpeed;
-        this.MapAutoCenter = getRequestParameter('MapAutoCenter') == 'true' || this.MapAutoCenter;
-        this.InitialAltitude = parseInt(getRequestParameter('InitialAltitude')) || this.InitialAltitude;
+        this.MapZoom = getIntParam('MapZoom', this.MapZoom);
+        this.MapLatitude = getFloatParam('MapLatitude', this.MapLatitude);
+        this.MapLongitude = getFloatParam('MapLongitude', this.MapLongitude);
+        this.PlaneLatitude = getFloatParam('PlaneLatitude', this.PlaneLatitude);
+        this.PlaneLongitude = getFloatParam('PlaneLongitude', this.PlaneLongitude);
+        this.TargetLatitude = getFloatParam('TargetLatitude', this.TargetLatitude);
+        this.TargetLongitude = getFloatParam('TargetLongitude', this.TargetLongitude);
+        this.WindDirection = getIntParam('WindDirection', this.WindDirection);
+        this.WindSpeed = getIntParam('WindSpeed', this.WindSpeed);
+        this.ParachuteSpeed = getIntParam('ParachuteSpeed', this.ParachuteSpeed);
+        this.ParachuteTurnSpeed = getIntParam('ParachuteTurnSpeed', this.ParachuteTurnSpeed);
+        this.DropSpeed = getIntParam('DropSpeed', this.DropSpeed);
+        this.ShowAltitude = getBooleanParam('ShowAltitude', this.ShowAltitude);
+        this.MapAutoCenter = getBooleanParam('MapAutoCenter', this.MapAutoCenter);
+        this.InitialAltitude = getIntParam('InitialAltitude', this.InitialAltitude);
     },
     SaveSettingsToUrl: function() {
         var values = {
@@ -131,10 +153,26 @@ var Config = {
             WindSpeed: this.WindSpeed,
             ParachuteSpeed: this.ParachuteSpeed,
             DropSpeed: this.DropSpeed,
+            ShowAltitude: this.ShowAltitude ? 'true' : 'false',
             MapAutoCenter: this.MapAutoCenter ? 'true' : 'false'
         };
         $('#Link').attr('href', '?' + $.param(values));
     }
+}
+
+function getIntParam(name, defaultValue) {
+    var value = getRequestParameter(name);
+    return (value === null) ? defaultValue : parseInt(value);
+}
+
+function getFloatParam(name, defaultValue) {
+    var value = getRequestParameter(name);
+    return (value === null) ? defaultValue : parseFloat(value);
+}
+
+function getBooleanParam(name, defaultValue) {
+    var value = getRequestParameter(name);
+    return (value === null) ? defaultValue : value === 'true';
 }
 
 function getRequestParameter(name)
@@ -144,7 +182,7 @@ function getRequestParameter(name)
     var regex = new RegExp(regexS);
     var results = regex.exec(window.location.search);
     if(results == null)
-        return "";
+        return null;
     else
         return decodeURIComponent(results[1].replace(/\+/g, " "));
 }
