@@ -10,7 +10,7 @@ var Config = {
     WindSpeed: 5,
     ParachuteSpeed: 8,
     DropSpeed: 3,
-    TimeSpeedUp: 1,
+    TimeSpeedUp: 3,
     ShowAltitude: true,
     MapAutoCenter: false,
     
