@@ -97,6 +97,7 @@ var Config = {
     },
     TimeSpeedUpChanged: function(value) {
         this.TimeSpeedUp = value;
+        $("#currentTimeSpeedUp").html(value);
         $("#TimeSpeedUpSlider").slider("value", value);
         $("#TimeSpeedUp").val(value);
         this.SaveSettingsToLink();

@@ -14,6 +14,9 @@
             $("#settings").toggle('slide');
             $("#settingsIcon").toggleClass('toggled');
         });
+        $("#timeSpeedUpIcon").click(function() {
+            Config.TimeSpeedUpChanged(Config.TimeSpeedUp % 5 + 1 );
+        });
         $("#jumpIcon").click(function() {
             if ($("#jumpIcon").hasClass('toggled')) {
                 Parachute.stop();
