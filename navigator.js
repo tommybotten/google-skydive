@@ -2,6 +2,14 @@
     $(document).ready(function(){
         $(document).keydown(function(e){
             Engine.pressedKeys[e.keyCode] = true;
+            
+            if (e.keyCode == 38) { // up arrow
+                Config.ParachuteSpeedChanged(Config.ParachuteSpeed + 1);
+            }
+            if (e.keyCode == 40) { // down arrow
+                var newSpeed = Config.ParachuteSpeed - 1; 
+                Config.ParachuteSpeedChanged(newSpeed >= 0 ? newSpeed : 0);
+            }
         });
         $(document).keyup(function(e){
             Engine.pressedKeys[e.keyCode] = false;
