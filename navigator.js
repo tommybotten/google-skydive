@@ -4,7 +4,8 @@
             Engine.pressedKeys[e.keyCode] = true;
             
             if (e.keyCode == 38) { // up arrow
-                Config.ParachuteSpeedChanged(Config.ParachuteSpeed + 1);
+                var newSpeed = Config.ParachuteSpeed + 1;
+                Config.ParachuteSpeedChanged(newSpeed <= 8 ? newSpeed : 8);
             }
             if (e.keyCode == 40) { // down arrow
                 var newSpeed = Config.ParachuteSpeed - 1; 
