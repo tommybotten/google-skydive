@@ -104,7 +104,7 @@ var Config = {
     },
     WindDirectionChanged: function(value) {
         this.WindDirection = value - 180;
-        $("#tuuliT").rotate({animateTo:this.WindDirection});
+        $("#windsock").rotate({animateTo:this.WindDirection});
         $("#windArrow").rotate({animateTo:this.WindDirection});
         $("#WindDirectionSlider").slider("value", value);
         $("#WindDirection").val(value);

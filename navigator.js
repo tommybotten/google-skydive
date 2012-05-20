@@ -60,17 +60,17 @@
             this.googleMap = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
         },
         CreateMarkers: function() {
-            var tuulitImg = document.createElement("img");
-            tuulitImg.src = "img/tuuliT.png";
-            tuulitImg.setAttribute("id", "tuuliT");
+            var windsockImg = document.createElement("img");
+            windsockImg.src = "img/windsock.png";
+            windsockImg.setAttribute("id", "windsock");
         
             this.targetMarker = new MarkerWithLabel({
                 position: new google.maps.LatLng(Config.TargetLatitude, Config.TargetLongitude),
                 map: this.googleMap,
                 draggable: true,
                 icon: "img/blank.png",
-                labelContent: tuulitImg,
-                labelAnchor: new google.maps.Point(12, 12),
+                labelContent: windsockImg,
+                labelAnchor: new google.maps.Point(25, 25),
             });
 
             this.planeMarker = new google.maps.Marker({
